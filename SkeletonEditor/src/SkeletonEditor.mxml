@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					   xmlns:s="library://ns.adobe.com/flex/spark" 
+					   xmlns:ui="editor.uitility.ui.*"
+					   xmlns:mx="library://ns.adobe.com/flex/mx" width="1400" height="800" showStatusBar="false" applicationComplete="onApplicationComplete(event)" xmlns:local="*">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script source="ContextMenuCode.as" />
+	<fx:Script>
+		<![CDATA[
+			import editor.skeleton.event.SkeletonEditorEvent;
+			import editor.uitility.ui.PopUpWindowManager;
+			import editor.uitility.ui.event.PixelEditorEvent;
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			
+			import pixel.skeleton.PixelBone;
+			import pixel.skeleton.PixelSkeleton;
+			import pixel.skeleton.inf.IPixelAction;
+			import pixel.skeleton.inf.IPixelActionFrameKey;
+			import pixel.skeleton.inf.IPixelBone;
+			import pixel.skeleton.inf.IPixelSkeleton;
+			
+			public static const MENU_SKELETON_NEW:int = 1;
+			
+			[Bindable]
+			protected var timelineEnabled:Boolean = false;
+			
+			protected var _workspace:Worksapce = null;
+			protected function onApplicationComplete(event:FlexEvent):void
+			{
+				_workspace = new Worksapce();
+				workspaceContainer.addElement(_workspace);
+				//初始化骨架树右键菜单
+				initiContextMenu();
+				
+				stage.addEventListener(KeyboardEvent.KEY_DOWN,onKeyboardInput);
+				stage.addEventListener(KeyboardEvent.KEY_UP,onKeyboardInputEnd);
+				
+				this.addEventListener(SkeletonEditorEvent.SKELETON_FRAM_UPDATEBONE,onFrameBoneUpdate);
+			}
+			
+			/**
+			 * 更新当前骨骼状态到指定帧
+			 * 
+			 **/
+			protected function onFrameBoneUpdate(event:SkeletonEditorEvent):void
+			{
+				var actName:String = event.params[0];
+				var idx:int = event.params[1];
+				//获取指定动作
+				var _act:IPixelAction = _skeleton.skeleton.findActionByName(actName);
+				//计算帧是否在关键帧区间
+				var keys:Vector.<IPixelActionFrameKey> = _act.frames;
+				var star:IPixelActionFrameKey = null;
+				var end:IPixelActionFrameKey = null;
+				var args:Vector.<String> = new Vector.<String>();
+				for each(var key:IPixelActionFrameKey in keys)
+				{
+					if(idx == key.frameIndex)
+					{
+						//跳到某关键帧
+						args = key.frameArgs.concat([]);
+						refreshBonePostionByArgs(args);
+						return;
+					}
+					else if(idx > key.frameIndex)
+					{
+						star = key;
+					}
+					else if(idx < key.frameIndex)
+					{
+						end = key;
+					}
+				}
+				if(!end)
+				{
+					return;
+				}
+				var totalCount:int = end.frameIndex - star.frameIndex;
+				
+				//将动作帧调制起始关键帧
+				_skeleton.skeleton.changeAction(actName,star.frameIndex);
+				
+				args = end.frameArgs;
+				var offset:int = 0;
+				var boneName:String = "";
+				var paramName:String = "";
+				var paramValue:Number = 0;
+				var bone:IPixelBone = null;
+				var clipArgs:Vector.<String> = new Vector.<String>();
+				while(offset < args.length)
+				{
+					boneName = args[offset];
+					offset++;
+					paramName = args[offset];
+					offset++;
+					paramValue = Number(args[offset]);
+					offset++;
+					
+					bone = _skeleton.skeleton.findBondByName(boneName);
+					if(bone)
+					{
+						paramValue = paramValue - (Number(bone.view[paramName]));
+						paramValue = Number((paramValue / totalCount).toFixed(2));
+						paramValue = paramValue * (idx - star.frameIndex);
+						clipArgs.push(boneName);
+						clipArgs.push(paramName);
+						clipArgs.push(String(paramValue));
+					}
+				}
+				refreshBonePostionByArgs(clipArgs);
+			}
+			
+			protected function refreshBonePostionByArgs(args:Vector.<String>):void
+			{
+				
+			}
+			
+			protected var _command:Boolean = false;
+			protected function onKeyboardInput(event:KeyboardEvent):void
+			{
+				_command = true;
+			}
+			protected function onKeyboardInputEnd(event:KeyboardEvent):void
+			{
+				_command = false;
+			}
+			
+			/**
+			 * 骨骼结构树列表
+			 * 
+			 **/
+			[Bindable]
+			private var _skeletonTreeData:ArrayCollection = new ArrayCollection();
+			protected function menuSelected(event:PixelEditorEvent):void
+			{
+				switch(event.value)
+				{
+					case MENU_SKELETON_NEW:
+						//新建骨架
+						onOpenNewSkeletonDialog();
+						break;
+				}
+			}
+			
+			/**
+			 * 显示新建骨架窗口
+			 * 
+			 **/
+			protected function onOpenNewSkeletonDialog():void
+			{
+				var window:NewSkeletonDialog = PopUpWindowManager.PopUp(NewSkeletonDialog) as NewSkeletonDialog;
+				window.addEventListener(SkeletonEditorEvent.SKELETON_NEW,onNewSkeletonConfirm);
+			}
+			
+			private var _skeleton:SkeletonVO = null;
+			/**
+			 * 确认创建新骨架
+			 * 
+			 **/
+			protected function onNewSkeletonConfirm(event:SkeletonEditorEvent):void
+			{
+				NewSkeletonDialog(event.target).removeEventListener(SkeletonEditorEvent.SKELETON_NEW,onNewSkeletonConfirm);
+				NewSkeletonDialog(event.target).CloseWindow();
+				var skeleton:PixelSkeleton = new PixelSkeleton();
+				skeleton.name = String(event.params);
+				_skeleton = new SkeletonVO(skeleton);
+				_skeletons.push(_skeleton);
+				//_workspace.addChild(_skeleton);
+				_workspace.skeleton = _skeleton;
+				refreshSkeletonTree();
+			}
+
+			private var _selectSkeletonBone:SkeletonBoneVO = null;
+			protected function skeletonContructSelect(event:ListEvent):void
+			{
+				var item:Object = event.itemRenderer.data;
+				if(item)
+				{
+					if(item is SkeletonBoneVO)
+					{
+//						if(_selectSkeletonBone)
+//						{
+//							_selectSkeletonBone.state = SkeletonBoneVO.STATE_NORMAL;
+//						}
+//						_selectSkeletonBone = item as SkeletonBoneVO;
+//						_selectSkeletonBone.state = SkeletonBoneVO.STATE_ACTIVE;
+					}
+					else if(item is SkeletonActionVO)
+					{
+						//选择动作
+						timelinePanel.action = item as SkeletonActionVO;
+						timelineEnabled = true;
+					}
+					else if(item is SkeletonSkinVO)
+					{
+						//选择皮肤
+					}
+				}
+			}
+			
+			private var _skeletons:Vector.<SkeletonVO> = new Vector.<SkeletonVO>();
+			
+			/**
+			 * 刷新属性列表
+			 * 
+			 **/
+			private function refreshSkeletonTree():void
+			{
+//				for each(var old:SkeletonVO in _skeletonTreeData)
+//				{
+//					old.removeEventListener(SkeletonEditorEvent.SKELETON_BONE_SELECTE,onBoneSelect);
+//				}
+				_skeletonTreeData.removeAll();
+				for each(var skeleton:SkeletonVO in _skeletons)
+				{
+//					skeleton.addEventListener(SkeletonEditorEvent.SKELETON_BONE_SELECTE,onBoneSelect);
+					_skeletonTreeData.addItem(skeleton);
+				}
+			}
+			
+			/**
+			 * 时间线帧变更
+			 * 
+			 **/
+			protected function onTimelineFrameChanged(event:SkeletonEditorEvent):void
+			{
+				trace(event.params);
+			}
+			
+			/**
+			 * 右键弹出菜单
+			 * 
+			 **/
+			protected function onPopUpContextMenu(event:MouseEvent):void
+			{
+				trace(event);
+				if(_item is ActionNode)
+				{
+					skeletonTree.contextMenu = _actionCtxMenu;
+				}
+			}
+			
+//			protected function skeletonTree(event:ListEvent):void
+//			{
+//				// TODO Auto-generated method stub
+//				
+//			}
+			
+			private var _item:Object = null;
+			protected function skeletonTreeItemFocus(event:ListEvent):void
+			{
+				_item = event.itemRenderer.data;
+			}
+			
+			private var isSkeletonAdd:Boolean = false;
+			protected function skeletonBoneAdd(event:MouseEvent):void
+			{
+				isSkeletonAdd = true;
+			}
+			
+			protected function onWorkspaceClick(event:MouseEvent):void
+			{
+				if(_command)
+				{
+					var bone:PixelBone = new PixelBone();
+					
+					bone.width = 30;
+					bone.height = 100;
+					
+					_skeleton.skeleton.addBone(bone);
+					if(event.target is SkeletonBoneVO)
+					{
+						//bone.x = SkeletonBoneVO(event.target).bone.x;
+						//bone.y = SkeletonBoneVO(event.target).height;
+						SkeletonBoneVO(event.target).appendBone(bone);
+					}
+					else
+					{
+						
+						var pos:Point = new Point(workspaceContainer.mouseX,workspaceContainer.mouseY);
+						pos = _workspace.localToGlobal(pos);
+						pos = _skeletons[0].globalToLocal(pos);
+						bone.x = pos.x;
+						bone.y = pos.y;
+						
+						_skeleton.addBone(bone);
+					}
+				}
+				
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:HGroup>
+		<s:VGroup>
+			<ui:AdvanceMenuBar width="100%" id="mainMenu" MenuSelected="menuSelected(event)" dataProvider="{menuData}" />
+			
+			<s:BorderContainer width="{Globals.WORKSPACE_WIDTH}" height="{Globals.WORKSPACE_HEIGHT}" borderVisible="true">
+				<s:Scroller width="100%" height="100%">
+					<s:Group id="workspaceContainer" click="onWorkspaceClick(event)" >
+						
+					</s:Group>
+						
+				</s:Scroller>
+				
+			</s:BorderContainer>
+			<s:Panel width="{Globals.WORKSPACE_WIDTH}" height="190" title="时间线" enabled="{timelineEnabled}">
+				<s:layout>
+					<s:VerticalLayout />
+				</s:layout>
+				<s:Scroller width="100%" height="100%">
+					<local:TimeLinePanel id="timelinePanel" frameChange="onTimelineFrameChanged(event)" />
+				</s:Scroller>
+			</s:Panel>
+		</s:VGroup>
+		
+		<mx:Accordion width="300" height="99%" creationPolicy="all" >
+			<mx:VBox label="骨骼结构" horizontalAlign="center" width="100%" height="100%">
+				<mx:Tree id="skeletonTree" labelField="skeletonName" width="100%" height="100%" dataProvider="{_skeletonTreeData}"
+						 itemFocusIn="skeletonTreeItemFocus(event)"
+						 itemRollOver="skeletonTreeItemFocus(event)"
+						 itemClick="skeletonContructSelect(event)"
+						 rightClick="onPopUpContextMenu(event)" />
+			</mx:VBox>
+			<mx:VBox label="皮肤" horizontalAlign="center" width="100%" height="100%">
+				
+			</mx:VBox>
+			<mx:VBox label="工具箱" horizontalAlign="center" width="100%" height="100%">
+				<s:Button label="新骨骼" click="skeletonBoneAdd(event)" />
+				
+			</mx:VBox>
+		</mx:Accordion>
+	</s:HGroup>
+	
+	
+	
+</s:WindowedApplication>

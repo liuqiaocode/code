@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:AdvanceWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				  xmlns:s="library://ns.adobe.com/flex/spark" 
+				  xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:ui="editor.uitility.ui.*" width="400" height="300">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import editor.skeleton.event.SkeletonEditorEvent;
+			protected function onCreateClick(event:MouseEvent):void
+			{
+				if(skeletonId.text)
+				{
+					var notify:SkeletonEditorEvent = new SkeletonEditorEvent(SkeletonEditorEvent.SKELETON_NEW);
+					notify.params = skeletonId.text;
+					dispatchEvent(notify);
+				}
+			}
+		]]>
+	</fx:Script>
+	
+	<ui:layout>
+		<s:VerticalLayout gap="10" paddingTop="10" paddingLeft="10" />
+	</ui:layout>
+	
+	<s:HGroup verticalAlign="middle">
+		<s:Label text="ID" width="80" />
+		
+		<s:TextInput width="150" id="skeletonId" />
+	</s:HGroup>
+	
+	<s:HGroup horizontalAlign="center" width="100%">
+		<s:Button label="创建" click="onCreateClick(event)" />
+	</s:HGroup>
+</ui:AdvanceWindow>

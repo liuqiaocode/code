@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:GenericProperty xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					xmlns:s="library://ns.adobe.com/flex/spark" 
+					xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:ui="editor.ui.*" xmlns:ui1="editor.uitility.ui.*">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.events.ColorPickerEvent;
+			import mx.events.FlexEvent;
+			
+			import pixel.ui.control.UIButton;
+			import pixel.ui.control.UIFilterButton;
+			import pixel.ui.control.UILabel;
+			import pixel.ui.control.utility.Utils;
+			import pixel.utility.Tools;
+			
+			import spark.events.IndexChangeEvent;
+			import spark.events.TextOperationEvent;
+			
+			private var button:UIFilterButton = null;
+			[Bindable]
+			private var _label:UILabel = null;
+			
+			[Bindable]
+			private var _FamilyArray:ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			private var _simpleStyleEnable:Boolean = true;
+			
+			[Bindable]
+			private var _filterArray:ArrayCollection = new ArrayCollection();
+			
+			public function set enableSimpleStyle(value:Boolean):void
+			{
+				_simpleStyleEnable = value;
+			}
+			override protected function Initialized():void
+			{
+				button = Control as pixel.ui.control.UIFilterButton;
+				buttonState.selectedIndex = button.state;
+				changeFilterSelectById(button.getFilter());
+				_label = button.labelControl;
+				_filterArray.removeAll();
+				
+				_filterArray.addItem(
+					{
+						label : "无滤镜",
+						id : ""
+					}
+				
+				);
+				//初始化滤镜列表
+				for each(var obj:Object in Utils.COLOR_FILTERS)
+				{
+					_filterArray.addItem(obj);
+				}
+				
+				
+			}
+			
+			/**
+			 * 编辑控件为按钮时响应状态切换
+			 **/
+			private function onStateChanged(Event:IndexChangeEvent):void
+			{
+				button.state = Event.newIndex;
+				//_CurrentControl.Update();
+				
+				SimpleStyle.Control = button;
+				BorderStyle.Control = button;
+				BackgroundStyle.Control = button;
+				ScaleStyle.Control = button;
+				
+				changeFilterSelectById(button.getFilter());
+			}
+			
+			/**
+			 * 为当前状态选择滤镜
+			 * 
+			 **/
+			protected function onFilterChanged(event:IndexChangeEvent):void
+			{
+				var filter:Object = _filterArray.getItemAt(event.newIndex);
+				button.addFilter(filter.id);
+			}
+			
+			protected function changeFilterSelectById(id:String):void
+			{
+				for (var idx:int = 0; idx<_filterArray.length; idx++)
+				{
+					if(_filterArray[idx].id == id)
+					{
+						filterCombobox.selectedIndex = idx;
+						return;
+					}
+				}
+				filterCombobox.selectedIndex = 0;
+			}
+		]]>
+	</fx:Script>
+	
+	<ui:LabelPropery Control="{_label}" visible="{_simpleStyleEnable}" includeInLayout="{_simpleStyleEnable}" enableSimpleStyle="false" /> 
+	
+	<s:Label text="状态样式" styleName="LabelTitle" />
+	<s:HGroup id="StateSwitch">
+		<s:Label text="按钮状态" height="100%" verticalAlign="middle" width="60"/>
+		<s:ComboBox width="80" change="onStateChanged(event)" id="buttonState" selectedIndex="0">
+			<s:ArrayCollection>
+				<fx:String>普通</fx:String>
+				<fx:String>滑过</fx:String>
+				<fx:String>按下</fx:String>
+			</s:ArrayCollection>
+		</s:ComboBox>
+	</s:HGroup>
+	
+	<s:HGroup id="filterGroup">
+		<s:Label text="滤镜列表" height="100%" verticalAlign="middle" width="60"/>
+		<s:ComboBox width="80" id="filterCombobox" change="onFilterChanged(event)" selectedIndex="0" labelField="label" dataProvider="{_filterArray}">
+			
+		</s:ComboBox>
+	</s:HGroup>
+	
+	<ui:BasicPropertie id="SimpleStyle" Control="{CurrentControl}" visible="{_simpleStyleEnable}" includeInLayout="{_simpleStyleEnable}"  />
+	<ui:BordeStyleProperty id="BorderStyle" Control="{CurrentControl}" visible="{_simpleStyleEnable}" includeInLayout="{_simpleStyleEnable}"/>
+	<ui:Background id="BackgroundStyle" Control="{CurrentControl}"/>
+	<ui:ScaleGrid9Propertie id="ScaleStyle" Control="{CurrentControl}" />
+</ui:GenericProperty>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" buttonMode="true" mouseDown="onDrag(event)">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import editor.uitility.ui.event.EditorUtilityEvent;
+			
+			import pixel.ui.control.IUIControl;
+			
+			private var _control:IUIControl = null;
+			public function set control(control:IUIControl):void
+			{
+				_control = control;
+				controlId.text = _control.id;
+			}
+			public function get control():IUIControl
+			{
+				return _control;
+			}
+			
+			/**
+			 * 选择组件
+			 * 
+			 **/
+			protected function onDrag(event:MouseEvent):void
+			{
+				var notify:EditorUtilityEvent = new EditorUtilityEvent(EditorUtilityEvent.CONTROL_DRAG_START);
+				notify.Params.push(_control);
+				dispatchEvent(notify);
+			}
+			
+		]]>
+	</fx:Script>
+	<s:layout>
+		<s:HorizontalLayout gap="5" verticalAlign="middle" />
+	</s:layout>
+	
+	<s:Label id="controlId" width="150" />
+	<s:Image source="@Embed('../assets/controlIcon.png')" smooth="true" />
+</s:Group>

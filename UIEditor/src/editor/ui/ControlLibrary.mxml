@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" initialize="onInitializer(event)" width="100%">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			[Embed(source="assets/listClose.png")]
+			private var CLOSE:Class;
+			
+			[Embed(source="assets/listOpen.png")]
+			private var OPEN:Class;
+			
+			import pixel.ui.control.vo.UIControlMod;
+			import pixel.ui.control.vo.UIMod;
+			private var _module:UIMod = null;
+			public function set module(mod:UIMod):void
+			{
+				_module = mod;
+				controlList.removeAllElements();
+				
+				var controls:Vector.<UIControlMod> = _module.controls;
+				for each(var control:UIControlMod in controls)
+				{
+					var item:ControlItem = new ControlItem();
+					item.control = control.getControl();
+					controlList.addElement(item);
+				}
+			}
+			
+			public function get module():UIMod
+			{
+				return _module;
+			}
+			
+			public function set libraryName(value:String):void
+			{
+				libName.text = value;
+			}
+			
+			private var _showList:Boolean = true;
+			private var _openIcon:Bitmap = null;
+			private var _closeIcon:Bitmap = null;
+			protected function onInitializer(event:FlexEvent):void
+			{
+				_openIcon = new OPEN() as Bitmap;
+				_closeIcon = new CLOSE() as Bitmap;
+				
+				swithcer.source = _openIcon.bitmapData;
+			}
+			
+			protected function switchShow(event:MouseEvent):void
+			{
+				_showList = !_showList;
+				swithcer.source = _showList ? _openIcon.bitmapData : _closeIcon.bitmapData; 
+				controlList.visible = controlList.includeInLayout = _showList;
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:layout>
+		<s:VerticalLayout />
+	</s:layout>
+	
+	<s:HGroup paddingLeft="5" verticalAlign="middle" width="100%" >
+		<s:Image id="swithcer" smooth="true" buttonMode="true" click="switchShow(event)" />
+		<s:Label id="libName" />	
+	</s:HGroup>
+	
+	<mx:HRule width="100%" />
+	
+	<s:VGroup paddingLeft="15" id="controlList">
+	</s:VGroup>
+</s:Group>

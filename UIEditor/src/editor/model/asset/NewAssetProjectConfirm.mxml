@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:AdvanceWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				  xmlns:s="library://ns.adobe.com/flex/spark" 
+				  xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:ui="editor.uitility.ui.*" width="400" height="300" title="新建资源库">
+	<!--
+		创建新的资源项目确认&信息填写界面
+	-->
+	
+	<fx:Script>
+		<![CDATA[
+			import editor.event.NotifyEvent;
+			import editor.utils.Common;
+			
+			
+			/**
+			 * 确定创建项目
+			 **/
+			protected function createComplete(event:MouseEvent):void
+			{
+				var notify:NotifyEvent = new NotifyEvent(NotifyEvent.NEW_ASSET_PROJECT);
+				notify.Params = [projectName.text,projectDir.text];
+				dispatchEvent(notify);
+				this.CloseWindow();
+			}
+			
+			private var _browser:File = null;
+			protected function browserDirect(event:MouseEvent):void
+			{
+				_browser = new File();
+				_browser.browseForDirectory("选择项目路径");
+				_browser.addEventListener(Event.SELECT,onDirectoryComplete);
+			}
+			
+			private function onDirectoryComplete(event:Event):void
+			{
+				projectDir.text = _browser.nativePath;
+			}
+		]]>
+	</fx:Script>
+	
+	
+	<ui:layout>
+		<s:VerticalLayout gap="15" paddingLeft="10" paddingTop="10"/>
+	</ui:layout>
+	
+	<s:HGroup  verticalAlign="middle">
+		<s:Label text="资源项目名称" width="80"/>
+		<s:TextInput id="projectName" width="150"/>
+	</s:HGroup>
+	
+	<s:HGroup  verticalAlign="middle">
+		<s:Label text="项目路径" width="80"/>
+		<s:TextInput id="projectDir" width="150"/>
+		<s:Button label="浏览" click="browserDirect(event)" />
+	</s:HGroup>
+	
+	
+	<s:HGroup  verticalAlign="middle" width="100%" horizontalAlign="center">
+		<s:Button label="完成" click="createComplete(event)" />
+		<s:Button label="取消" />
+	</s:HGroup>
+</ui:AdvanceWindow>

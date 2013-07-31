@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:GenericProperty xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					xmlns:s="library://ns.adobe.com/flex/spark" 
+					xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:ui="editor.ui.*" >
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			import pixel.ui.control.UIBitmapChar;
+			[Bindable]
+			private var charWidth:String = "";
+			[Bindable]
+			private var charDict:String = "";
+			
+			private var _control:UIBitmapChar = null;
+			override protected function Initialized():void
+			{
+				_control = Control as UIBitmapChar;
+				charDict = _control.charDict;
+				charWidth = _control.charWidth;
+				charDict = _control.charDict;
+			}
+			
+			public function charWidthChange(event:FlexEvent):void
+			{
+				_control.charWidth = charWidthText.text;
+			}
+			
+			
+			public function charDictChange(event:FlexEvent):void
+			{
+				_control.charDict = charDictText.text;
+			}
+		]]>
+	</fx:Script>
+	<s:Label text="图片数字组件属性"  styleName="LabelTitle"/>
+	<ui:BasicPropertie id="SimpleStyle" Control="{CurrentControl}" />
+	<ui:BordeStyleProperty Control="{CurrentControl}" />
+	<mx:HRule width="100%" />
+	<s:HGroup verticalAlign="middle">
+		<s:Label text="数字宽度" width="60"/>
+		<s:TextInput width="60" id="charWidthText" text="{charWidth}" enter="charWidthChange(event)"  />
+	</s:HGroup>
+	<s:HGroup verticalAlign="middle" >
+		<s:Label text="字典" width="60"/>
+		<s:TextInput width="60" id="charDictText" text="{charDict}" enter="charDictChange(event)" />
+	</s:HGroup>
+	<ui:Background id="BackgroundStyle" Control="{CurrentControl}"/>
+</ui:GenericProperty>

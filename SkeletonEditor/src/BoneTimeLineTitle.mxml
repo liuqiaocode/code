@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" addedToStage="onAddToStage(event)">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import spark.components.Label;
+			
+			protected function onAddToStage(event:Event):void
+			{
+				//timeline.addElement(new TimeLine(width,height,8));
+				grid.graphics.clear();
+				grid.graphics.lineStyle(1,0x5d5d5d);
+				grid.graphics.moveTo(0,0);
+				grid.graphics.drawRect(0,0,width,height);
+				var count:int = width / Globals.TIMELINE_DEFAULT_FRAME_WIDTH;
+				var idx:int = 0;
+				while(idx < count)
+				{
+					grid.graphics.moveTo(idx * Globals.TIMELINE_DEFAULT_FRAME_WIDTH,height - 4);
+					grid.graphics.lineTo(idx * Globals.TIMELINE_DEFAULT_FRAME_WIDTH,height);
+					idx++;
+					
+					if(idx % 5 == 0)
+					{
+						var num:Label = new Label();
+						
+						num.text = idx + "";
+						gridGroup.addElement(num);
+						num.x = (idx - 1) * Globals.TIMELINE_DEFAULT_FRAME_WIDTH;
+						num.y = 3;
+						//grid.graphics.moveTo(idx * Globals.TIMELINE_DEFAULT_FRAME_WIDTH,height);
+						grid.graphics.beginFill(0xff0000,0.4);
+						grid.graphics.drawRect((idx - 1) * Globals.TIMELINE_DEFAULT_FRAME_WIDTH,height - 5,10,5);
+						grid.graphics.endFill();
+					}
+				}
+			}
+		]]>
+	</fx:Script>
+	<s:layout>
+		<s:HorizontalLayout />
+	</s:layout>
+	
+	<s:Group id="gridGroup">
+		<s:Graphic id="grid" />
+	</s:Group>
+</s:Group>

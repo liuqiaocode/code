@@ -1,0 +1,1 @@
+require "pixel/framework/cocos2dx/CCSceneExtend"

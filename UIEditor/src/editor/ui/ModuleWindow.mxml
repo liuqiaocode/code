@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ModuleLoader xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" initialize="onComplete(event)" width="1000" height="600" removedFromStage="onRemove(event)">
+	<s:layout>
+		<s:BasicLayout/>
+	</s:layout>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			private var _navUrl:String = "";
+			public function set navUrl(value:String):void
+			{
+				_navUrl = value;
+				loadModule(_navUrl);
+			}
+			
+			protected function onComplete(event:FlexEvent):void
+			{
+			}
+			
+			protected function onRemove(event:Event):void
+			{
+				unloadModule();
+			}
+			
+		]]>
+	</fx:Script>
+</s:ModuleLoader>

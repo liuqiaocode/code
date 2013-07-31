@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:AdvanceWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="300" xmlns:ui="editor.uitility.ui.*">
+	<fx:Declarations>
+		
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import editor.event.NotifyEvent;
+			[Bindable]
+			private var _isCompress:Boolean = true;
+			
+			protected function compressOpenChange(event:Event):void
+			{
+				_isCompress = isCompress.selected;
+			}
+			
+			protected function createComplete(event:MouseEvent):void
+			{
+				var notify:NotifyEvent = new NotifyEvent(NotifyEvent.NEW_ASSET_LIBRARY);
+				notify.Params = [libraryName.text,exportName.text,packType.selectedIndex,isCompress.selected,0];
+				dispatchEvent(notify);
+				CloseWindow();
+			}
+		]]>
+	</fx:Script>
+	
+	<ui:layout>
+		<s:VerticalLayout gap="15" paddingLeft="10" paddingTop="10"/>
+	</ui:layout>
+	
+	<s:HGroup  verticalAlign="middle">
+		<s:Label text="资源库名称" width="80"/>
+		<s:TextInput id="libraryName" width="150"/>
+	</s:HGroup>
+	
+	<s:HGroup  verticalAlign="middle">
+		<s:Label text="输出资源文件名称" width="80"/>
+		<s:TextInput id="exportName" width="150"/>
+	</s:HGroup>
+	
+	<s:HGroup  verticalAlign="middle">
+		<s:Label text="图形打包类型" width="80"/>
+		<s:ComboBox width="80" id="packType" selectedIndex="0">
+			<s:ArrayCollection>
+				<fx:String>像素打包</fx:String>
+				<fx:String>文件打包</fx:String>
+			</s:ArrayCollection>
+		</s:ComboBox>
+	</s:HGroup>
+	
+	<s:HGroup  verticalAlign="middle">
+		<s:Label text="数据是否压缩" width="80"/>
+		<s:CheckBox selected="{_isCompress}" id="isCompress" change="compressOpenChange(event)" />
+	</s:HGroup>
+	<!--
+	<s:HGroup  verticalAlign="middle" visible="{_isCompress}" includeInLayout="{_isCompress}">
+	<s:Label text="数据压缩方式" width="80"/>
+	<s:ComboBox width="80" id="compressMode" selectedIndex="0">
+	<s:ArrayCollection>
+	<fx:String>ZLIB</fx:String>
+	<fx:String>LZMA(Flash11)</fx:String>
+	</s:ArrayCollection>
+	</s:ComboBox>
+	</s:HGroup>
+	-->
+	<s:HGroup  verticalAlign="middle" width="100%" horizontalAlign="center">
+		<s:Button label="完成" click="createComplete(event)" />
+		<s:Button label="取消" />
+	</s:HGroup>
+</ui:AdvanceWindow >

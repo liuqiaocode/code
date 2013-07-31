@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					   xmlns:s="library://ns.adobe.com/flex/spark" 
+					   xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100" initialize="Initialized(event)"
+					   borderVisible="{_BorderFlag}" buttonMode="{_BorderFlag}" cornerRadius="5" click="SelectClick(event)" >
+	<fx:Declarations>
+		<!--
+			单个资产条目数据
+		-->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import editor.event.NotifyEvent;
+			
+			import mx.events.FlexEvent;
+			
+			import pixel.ui.control.asset.AssetBitmap;
+			import pixel.ui.control.asset.AssetImage;
+			import pixel.ui.control.asset.AssetMovieClip;
+			import pixel.ui.control.asset.IAsset;
+			import pixel.ui.control.asset.IAssetImage;
+			import pixel.utility.Tools;
+
+			
+			private var _Asset:IAsset = null;
+			private var Update:Boolean = false;
+			private var _PreviewBitmap:BitmapData = null;
+			
+			[Bindable]
+			private var _BorderFlag:Boolean = false;
+			
+			[Bindable]
+			private var _isMovie:Boolean = false;
+			public function set Item(Item:IAsset):void
+			{
+				_Asset = Item;
+				
+				if(null == PreviewImg)
+				{
+					Update = true;
+				}
+				else
+				{
+					Render();
+				}
+			}
+			public function get Item():IAsset
+			{
+				return _Asset;
+			}
+			
+			protected function Initialized(event:FlexEvent):void
+			{
+				if(Update)
+				{
+					Render();
+					Update = false;
+				}
+				
+				addEventListener(MouseEvent.MOUSE_OVER,ShowBorder);
+				addEventListener(MouseEvent.MOUSE_OUT,HideBorder);
+			}
+			
+			private function Render():void
+			{
+				
+				if(_Asset is IAssetImage)
+				{
+					if(AssetImage(_Asset).image)
+					{
+						_PreviewBitmap = Tools.BitmapScale(IAssetImage(_Asset).image,100);
+						PreviewImg.source = _PreviewBitmap;
+						Pixel.text = "宽:" + AssetImage(_Asset).width + " 高:" +   AssetImage(_Asset).height;
+						classPath.text = AssetImage(_Asset).name;
+					}
+				}
+				else if(_Asset is AssetMovieClip)
+				{
+					if(AssetMovieClip(_Asset).resource)
+					{
+						_PreviewBitmap = new BitmapData(AssetMovieClip(_Asset).resource.width,AssetMovieClip(_Asset).resource.height);
+						_PreviewBitmap.draw(AssetMovieClip(_Asset).resource);
+						PreviewImg.source = _PreviewBitmap;
+						Pixel.text = "宽:" + AssetMovieClip(_Asset).resource.width + " 高:" + AssetMovieClip(_Asset).resource.height;
+						classPath.text = _Asset.name;
+						_isMovie = true;
+					}
+				}
+				//Size.text = _Asset.Data.length / 1024 + "K";
+			}
+			
+//			private function DeleteAsset(event:MouseEvent):void
+//			{
+//				var Notify:NotifyEvent = new NotifyEvent(NotifyEvent.DELETEASSET);
+//				Notify.Params.push(_Asset);
+//				dispatchEvent(Notify);
+//			}
+			
+			private function ShowBorder(event:MouseEvent):void
+			{
+				_BorderFlag = true;
+			}
+			private function HideBorder(event:MouseEvent):void
+			{
+				_BorderFlag = false;
+			}
+			
+			private function SelectClick(event:MouseEvent):void
+			{
+				var Notify:NotifyEvent = new NotifyEvent(NotifyEvent.SELECTASSET);
+				Notify.Params.push(_Asset);
+				dispatchEvent(Notify);
+			}
+		]]>
+	</fx:Script>
+	
+	
+	
+	<s:layout>
+		<s:HorizontalLayout paddingLeft="10" gap="20" verticalAlign="middle" />
+	</s:layout>
+	
+	<s:Image id="PreviewImg" width="80" height="80" smooth="true" mouseEnabled="false"/>
+	
+	<s:Label id="Pixel" width="100" mouseEnabled="false" text="100 X 100" textAlign="center" />
+	
+	<s:Label text="" width="100%" id="classPath" mouseEnabled="false" />
+	
+	<s:Image source="@Embed('../assets/movie.png')" width="24" height="24" smooth="true" id="movieIcon" visible="{_isMovie}"  />
+	<!--
+	<s:Image buttonMode="true" click="DeleteAsset(event)" smooth="true"
+			 source="@Embed('../assets/Delete.png')" width="24" height="24" enabled="false" />
+	-->
+</s:BorderContainer>

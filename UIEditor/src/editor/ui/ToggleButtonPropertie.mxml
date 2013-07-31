@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:GenericProperty xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					xmlns:s="library://ns.adobe.com/flex/spark" 
+					xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:ui="editor.ui.*">
+	
+	<!--Tab标签样式设定-->
+	<fx:Metadata>
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.ColorPickerEvent;
+			import mx.events.FlexEvent;
+			
+			import pixel.ui.control.UIButton;
+			import pixel.ui.control.UILabel;
+			import pixel.ui.control.UIToggleButton;
+			import pixel.ui.control.utility.ButtonState;
+			import pixel.utility.Tools;
+			
+			import spark.events.IndexChangeEvent;
+			import spark.events.TextOperationEvent;
+			[Bindable]
+			private var Button:UIToggleButton = null;
+			[Bindable]
+			private var _Label:UILabel = null;
+			
+			[Bindable]
+			private var _simpleStyleEnable:Boolean = true;
+			public function set enableSimpleStyle(value:Boolean):void
+			{
+				_simpleStyleEnable = value;
+			}
+			override protected function Initialized():void
+			{
+				ButtonState.selectedIndex = 0;
+				Button = Control as UIToggleButton;
+			}
+			
+			/**
+			 * 编辑控件为按钮时响应状态切换
+			 **/
+			private function ButtonStateChanged(event:IndexChangeEvent):void
+			{
+				Button.state = comboboxData.getItemAt(event.newIndex).value;
+				SimpleStyle.Control = Button;
+				BorderStyle.Control = Button;
+				BackgroundStyle.Control = Button;
+				ScaleStyle.Control = Button;
+			}
+			
+			[Bindable]
+			private var comboboxData:ArrayCollection = new ArrayCollection([
+				{
+					label : '弹起',
+					value : pixel.ui.control.utility.ButtonState.TOGGLE_UP
+				},
+				{
+					label : '按下',
+					value : pixel.ui.control.utility.ButtonState.TOGGLE_DOWN
+				},
+				{
+					label : "聚焦",
+					value : pixel.ui.control.utility.ButtonState.OVER
+				}
+			
+			]);
+			
+			
+		]]>
+	</fx:Script>
+
+	<s:HGroup id="StateSwitch">
+		<s:Label text="状态" height="100%" verticalAlign="middle" width="60"/>
+		<s:ComboBox width="80" change="ButtonStateChanged(event)" id="ButtonState" selectedIndex="0" 
+					dataProvider="{comboboxData}"
+				    labelField="label">
+			
+		</s:ComboBox>
+	</s:HGroup>
+	
+	<ui:BasicPropertie id="SimpleStyle" Control="{CurrentControl}" visible="{_simpleStyleEnable}" includeInLayout="{_simpleStyleEnable}"  />
+	<ui:BordeStyleProperty id="BorderStyle" Control="{CurrentControl}" visible="{_simpleStyleEnable}" includeInLayout="{_simpleStyleEnable}"/>
+	<ui:Background id="BackgroundStyle" Control="{CurrentControl}"/>
+	<ui:ScaleGrid9Propertie id="ScaleStyle" Control="{CurrentControl}" />
+</ui:GenericProperty>

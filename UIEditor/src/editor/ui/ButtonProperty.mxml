@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:GenericProperty xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					xmlns:s="library://ns.adobe.com/flex/spark" 
+					xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:ui="editor.ui.*">
+	
+	<!--Tab标签样式设定-->
+	<fx:Metadata>
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			
+			import mx.controls.Alert;
+			import mx.events.ColorPickerEvent;
+			import mx.events.FlexEvent;
+			
+			import pixel.ui.control.UIButton;
+			import pixel.ui.control.UILabel;
+			import pixel.utility.Tools;
+			
+			import spark.events.IndexChangeEvent;
+			import spark.events.TextOperationEvent;
+			
+			private var Button:UIButton = null;
+			[Bindable]
+			private var _Label:UILabel = null;
+			
+			[Bindable]
+			private var _FamilyArray:ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			private var _simpleStyleEnable:Boolean = true;
+			public function set enableSimpleStyle(value:Boolean):void
+			{
+				_simpleStyleEnable = value;
+			}
+			override protected function Initialized():void
+			{
+//				var fonts:Array = Font.enumerateFonts(true);
+//				
+//				for each(var font:Font in fonts)
+//				{
+//					_FamilyArray.addItem(font.fontName);
+//				}
+				ButtonState.selectedIndex = 0;
+				Button = Control as pixel.ui.control.UIButton;
+//				SimpleStyle.Control = Button;
+//				BorderStyle.Control = Button;
+//				BackgroundStyle.Control = Button;
+				_Label = Button.textLabel;
+//				_FontSize = Button.textLabel.FontSize;
+//				_FontSizeText = "" + _FontSize;
+//				FontColorPicker.selectedColor = Button.textLabel.FontColor;
+//				_BindFontColorText = Tools.Color2Hex(Button.textLabel.FontColor);
+//				var idx:int = _FamilyArray.getItemIndex(Button.textLabel.FontFamily);
+//				if(idx >= 0)
+//				{
+//					LabelFamily.selectedIndex = idx;
+//					LabelFamily.toolTip = _FamilyArray.getItemAt(idx) as String;
+//				}
+				//LabelAlign.selectedIndex = Button.LabelTextAlign;
+			}
+			
+			/**
+			 * 编辑控件为按钮时响应状态切换
+			 **/
+			private function ButtonStateChanged(Event:IndexChangeEvent):void
+			{
+				Button.State = Event.newIndex;
+				//_CurrentControl.Update();
+				
+				SimpleStyle.Control = Button;
+				BorderStyle.Control = Button;
+				BackgroundStyle.Control = Button;
+				ScaleStyle.Control = Button;
+			}
+			
+		]]>
+	</fx:Script>
+	<ui:LabelPropery Control="{_Label}" visible="{_simpleStyleEnable}" includeInLayout="{_simpleStyleEnable}" enableSimpleStyle="false" /> 
+	
+	<s:HGroup id="StateSwitch">
+		<s:Label text="按钮状态" height="100%" verticalAlign="middle" width="60"/>
+		<s:ComboBox width="80" change="ButtonStateChanged(event)" id="ButtonState" selectedIndex="0">
+			<s:ArrayCollection>
+				<fx:String>普通</fx:String>
+				<fx:String>滑过</fx:String>
+				<fx:String>按下</fx:String>
+			</s:ArrayCollection>
+		</s:ComboBox>
+	</s:HGroup>
+	
+	<ui:BasicPropertie id="SimpleStyle" Control="{CurrentControl}" visible="{_simpleStyleEnable}" includeInLayout="{_simpleStyleEnable}"  />
+	<ui:BordeStyleProperty id="BorderStyle" Control="{CurrentControl}" visible="{_simpleStyleEnable}" includeInLayout="{_simpleStyleEnable}"/>
+	<ui:Background id="BackgroundStyle" Control="{CurrentControl}"/>
+	<ui:ScaleGrid9Propertie id="ScaleStyle" Control="{CurrentControl}" />
+</ui:GenericProperty>

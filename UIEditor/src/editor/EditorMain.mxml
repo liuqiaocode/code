@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:ui="editor.ui.*"
+		 xmlns:ui1="editor.uitility.ui.*"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" addedToStage="ApplicationComplete(event)">
+	
+	<fx:Script>
+		<![CDATA[
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script source="AssetLogic.as" />
+	<fx:Script source="ModelLogic.as" />
+	<fx:Script source="UIEditor.as" />
+	<s:layout>
+		<s:VerticalLayout gap="5" paddingLeft="5" paddingTop="5" paddingRight="5" />
+	</s:layout>
+	<!--<mx:MenuBar width="100%" id="mainMenu" labelField="label" itemClick="mainMenu_itemClickHandler(event)" />-->
+	<ui1:AdvanceMenuBar width="100%" id="mainMenu" MenuSelected="menuSelected(event)" dataProvider="{menuData}" />
+	
+	<mx:HDividedBox width="100%" height="100%" >
+		<s:VGroup width="154" height="99%">
+			<s:Panel width="100%" height="100%" dropShadowVisible="false" title="控件列表" id="ComponentBar" enabled="false">
+				<s:layout>
+					<s:VerticalLayout horizontalAlign="center" />
+				</s:layout>
+				
+				<s:Scroller width="100%" height="100%">
+					<s:Group>
+						<s:List dataProvider="{controls}" borderVisible="false">
+							<s:itemRenderer>
+								<fx:Component>
+									<mx:VBox horizontalAlign="center" borderVisible="false" paddingTop="20">
+										<s:Image source="{data.icon}" name="{data.id}"  mouseDown="outerDocument.StartDrag(event)"/>
+										<s:Label text="{data.label}" />
+									</mx:VBox>
+								</fx:Component>
+							</s:itemRenderer>
+						</s:List>
+					</s:Group>
+				</s:Scroller>
+			</s:Panel>
+		</s:VGroup>
+		
+		<ui:AdvanceTitleWindow width="100%" height="99%" dropShadowVisible="false" 
+							   title="组件编辑区" id="EditorWindow" closeButtonEnabled="{closeEnabled}" close="closeWorkeidt(event)">
+			<ui:layout>
+				<s:VerticalLayout paddingLeft="10" paddingTop="10" />
+			</ui:layout>
+			<s:Scroller width="100%" height="100%">
+				<s:Group id="WorkspaceContainer"  visible="false">
+					<s:Rect id="BackFill" >
+						<s:fill>
+							<s:BitmapFill source="@Embed('../assets/Grid.png')" fillMode="repeat"  />
+						</s:fill>
+					</s:Rect>
+				</s:Group>
+			</s:Scroller>
+		</ui:AdvanceTitleWindow>
+		
+		<mx:Accordion width="220" height="99%" creationPolicy="all" >
+			<mx:VBox label="属性" horizontalAlign="center" width="100%" height="100%">
+				<ui:Propertie id="ControlProperty" width="100%" height="100%"  OnChangeImage="OnChangeControlImage(event)"/>	
+			</mx:VBox>
+			
+			<mx:VBox label="结构" horizontalAlign="center" width="100%" height="100%">
+				<mx:Tree width="100%" height="100%" labelField="id" dataProvider="{controlTree}"
+				itemClick="controlTreeClick(event)">
+					
+				</mx:Tree>
+			</mx:VBox>
+			
+			<mx:VBox label="资源库" horizontalAlign="left" width="100%">
+				<s:HGroup gap="20" paddingTop="5">
+					<s:Image source="@Embed('../assets/Search.png')" width="24" height="24" smooth="true" click="importModelLibrary(event)" buttonMode="true" toolTip="从本地导入SWF资源"/>
+					<s:Image source="@Embed('../assets/Refresh.png')" width="24" height="24" smooth="true" click="OnRefreshAssetLibrary(event)" buttonMode="true" toolTip="刷新资源库"/>
+				</s:HGroup>
+				<mx:HRule width="100%" height="1"/>
+				<mx:Tree width="200" height="100%" borderVisible="false" contentBackgroundColor="#FFFFFF"
+						 dataProvider="{AssetLibraryTree}" iconFunction="TreeIconFactory"
+						 itemClick="TreeItemClick(event)" labelField="id"/>
+			</mx:VBox>
+			
+			<mx:VBox label="组件库" horizontalAlign="left" width="100%">
+				<s:HGroup gap="20" paddingTop="5">
+					<s:Image source="@Embed('../assets/Search.png')" width="24" height="24" smooth="true" click="importModelLibrary(event)" buttonMode="true" toolTip="从本地导入组件库资源"/>
+					<s:Image source="@Embed('../assets/Refresh.png')" width="24" height="24" smooth="true" click="refreshModelLibrary(event)" buttonMode="true" toolTip="刷新组件库"/>
+				</s:HGroup>
+				<mx:HRule width="100%" height="1"/>
+				<s:VGroup id="moduleLibrary" width="100%" height="100%">
+				</s:VGroup>
+			</mx:VBox>
+		</mx:Accordion>
+	</mx:HDividedBox>
+</s:Group>

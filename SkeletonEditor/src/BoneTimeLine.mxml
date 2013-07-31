@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" addedToStage="onAddToStage(event)" >
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import pixel.skeleton.inf.IPixelBone;
+			
+			private var _line:TimeLine = null;
+			private var _bone:IPixelBone = null;
+			public function set bone(value:IPixelBone):void
+			{
+				_bone = value;
+			}
+			public function get bone():IPixelBone
+			{
+				return _bone;
+			}
+			
+			protected function onAddToStage(event:Event):void
+			{
+				_line = new TimeLine(Globals.TIMELINE_DEFAULT_LENGTH,30,Globals.TIMELINE_DEFAULT_FRAME_WIDTH);
+				timeline.addElement(_line);
+			}
+			
+			public function active():void
+			{
+				_line.active();
+			}
+		]]>
+	</fx:Script>
+	
+	<s:layout>
+		<s:HorizontalLayout />
+	</s:layout>
+	
+	
+	<s:Group id="timeline">
+		
+	</s:Group>
+	
+	
+</s:Group>

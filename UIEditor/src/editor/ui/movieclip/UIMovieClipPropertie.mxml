@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:GenericProperty xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					xmlns:s="library://ns.adobe.com/flex/spark" 
+					xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:ui="editor.ui.*" width="400" height="300">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import editor.utils.Globals;
+			
+			import pixel.ui.control.UIMovieClip;
+			import pixel.ui.control.asset.AssetMovieClip;
+			import pixel.ui.control.asset.IAsset;
+			
+			override protected function Initialized():void
+			{
+			}
+			
+//			override protected function OnImageSelectedNotify(LibraryId:String,AssetId:String):void
+//			{
+//				var asset:IAsset = Globals.FindAssetById(LibraryId,AssetId);
+//				if(asset is AssetMovieClip)
+//				{
+//					UIMovieClip(Control).movieClip = AssetMovieClip(asset).resource;
+//					UIMovieClip(Control).movieClip.play();
+//				}
+//			}
+			
+		]]>
+	</fx:Script>
+	<ui:BasicPropertie id="SimpleStyle" Control="{CurrentControl}" />
+	<ui:BordeStyleProperty Control="{CurrentControl}" />
+	<ui:Background id="BackgroundStyle" Control="{CurrentControl}"/>
+	
+</ui:GenericProperty>

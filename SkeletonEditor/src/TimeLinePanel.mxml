@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:HGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:local="*"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" addedToStage="addToStage(event)" >
+	<fx:Declarations>
+	</fx:Declarations>
+	
+	<fx:Metadata>
+		[Event(name="frameChange", type="editor.skeleton.event.SkeletonEditorEvent")]
+	</fx:Metadata>
+	
+	
+	<fx:Script>
+		<![CDATA[
+			import editor.skeleton.event.SkeletonEditorEvent;
+			
+			import flash.net.dns.AAAARecord;
+			
+			import pixel.skeleton.PixelActionFrameKey;
+			import pixel.skeleton.inf.IPixelActionFrameKey;
+			import pixel.skeleton.inf.IPixelBone;
+			
+			import spark.components.Button;
+			private var _point:EditorNode = null;
+			protected function addToStage(event:Event):void
+			{
+				_point = new EditorNode();
+				_point.graphics.lineStyle(1,0xff0000);
+				_point.graphics.beginFill(0xff0000,0.4);
+				_point.graphics.drawRect(0,0,10,18);
+				_point.graphics.endFill();
+				_point.graphics.lineStyle(1,0xff0000,1);
+				_point.graphics.moveTo(5,19);
+				_point.graphics.lineTo(5,200);
+				timeline.addElement(_point);
+				_point.addEventListener(MouseEvent.MOUSE_DOWN,onDrag);
+
+				addEventListener(SkeletonEditorEvent.SKELETON_NEW_FRAME_KEY,onCreateActionFrameKey);
+				
+				addEventListener(SkeletonEditorEvent.SKELETON_FRAME_JUMP,onFrameJump);
+			}
+			
+			protected function onFrameJump(event:SkeletonEditorEvent):void
+			{
+				_point.x = (int(event.params) * Globals.TIMELINE_DEFAULT_FRAME_WIDTH);
+				
+				trace(event.params);
+				
+				var notify:SkeletonEditorEvent = new SkeletonEditorEvent(SkeletonEditorEvent.SKELETON_FRAM_UPDATEBONE,true);
+				notify.params = [_action.action.name,event.params];
+				
+				dispatchEvent(notify);
+			}
+			
+			/**
+			 * 创建动作关键帧
+			 * 
+			 **/
+			protected function onCreateActionFrameKey(event:SkeletonEditorEvent):void
+			{
+				var index:int = int(event.params);
+				
+				var key:IPixelActionFrameKey = new PixelActionFrameKey(index);
+				_action.addActionFrameKey(key);
+				_tmeline.frameKeys = _action.action.frames;
+			}
+			
+			private var _mx:int = 0;
+			private function onDrag(event:MouseEvent):void
+			{
+				_mx = stage.mouseX;
+				stage.addEventListener(MouseEvent.MOUSE_MOVE,onDragMove);
+				stage.addEventListener(MouseEvent.MOUSE_UP,onDragEnd);
+			}
+			
+			private function onDragMove(event:MouseEvent):void
+			{
+				var _pos:Point = new Point(stage.mouseX,stage.mouseY);
+				_pos = timelineTitle.globalToLocal(_pos);
+				
+				
+				_point.x = _pos.x;
+				if(_point.x < 0)
+				{
+					_point.x = 0;
+				}
+				if(_point.x + _point.width > timeline.width)
+				{
+					_point.x = timeline.width - _point.width;
+				}
+				
+				if(_point.x > 0 && _point.x + _point.width < timeline.width)
+				{
+					_point.x = (int(_point.x / Globals.TIMELINE_DEFAULT_FRAME_WIDTH) * Globals.TIMELINE_DEFAULT_FRAME_WIDTH);
+					
+				}
+				//_mx = stage.mouseX;
+				var notify:SkeletonEditorEvent = new SkeletonEditorEvent(SkeletonEditorEvent.SKELETON_FRAME_CHANGE);
+				notify.params = (_point.x / Globals.TIMELINE_DEFAULT_FRAME_WIDTH + 1);
+				dispatchEvent(notify);
+			}
+			
+			private function onDragEnd(event:MouseEvent):void
+			{
+				stage.removeEventListener(MouseEvent.MOUSE_MOVE,onDragMove);
+				stage.removeEventListener(MouseEvent.MOUSE_UP,onDragEnd);
+			}
+			
+			private var _action:SkeletonActionVO = null;
+			public function set action(value:SkeletonActionVO):void
+			{
+				_action = value;
+				refreshTimeline();
+			}
+			
+			private var _tmeline:TimeLine = null;
+			/**
+			 * 刷新时间线
+			 * 
+			 **/
+			protected function refreshTimeline():void
+			{
+				timelineGroup.removeAllElements();
+				
+				_tmeline = new TimeLine(Globals.TIMELINE_DEFAULT_LENGTH,60,Globals.TIMELINE_DEFAULT_FRAME_WIDTH);
+				timelineGroup.addElement(_tmeline);
+				_tmeline.action = _action;
+			}
+			
+		]]>
+	</fx:Script>
+	<s:VGroup id="boneDetail" width="100" gap="0">
+		<s:Group height="20">
+			
+		</s:Group>
+		<s:VGroup gap="0" id="boneGroup">
+			
+		</s:VGroup>
+	</s:VGroup>
+	<s:Group id="timeline"  width="8000" height="20">
+		<local:BoneTimeLineTitle width="8000" height="20" id="timelineTitle" />
+		
+		<s:Group y="20" id="timelineGroup">
+			
+		</s:Group>
+	</s:Group>
+
+</s:HGroup>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Module xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		  xmlns:s="library://ns.adobe.com/flex/spark" 
+		  xmlns:mx="library://ns.adobe.com/flex/mx" width="1000" height="600" initialize="onInitializer(event)"  >
+	<fx:Script source="AssetManagerLogic.as" />
+	<fx:Script source="AssetProjectLogic.as" />
+	<fx:Script source="AssetLibraryLogic.as" />
+	<fx:Script>
+		<![CDATA[
+			import editor.uitility.ui.event.EditorUtilityEvent;
+			
+			/**
+			 * 关闭当前模块
+			 * 
+			 **/
+			protected function onModuleClose(event:CloseEvent):void
+			{
+				this.dispatchEvent(new EditorUtilityEvent(EditorUtilityEvent.WINDOW_CLOSE));
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:TitleWindow width="100%" height="100%" close="onModuleClose(event)">
+		<s:layout>
+			<s:HorizontalLayout paddingLeft="10" paddingTop="10" paddingBottom="10" paddingRight="10" gap="10" />
+		</s:layout>
+		
+		<s:Group width="200" height="100%">
+			<s:layout>
+				<s:VerticalLayout />
+			</s:layout>
+			<s:BorderContainer width="100%" height="100%" borderColor="0x5d5d5d">
+
+						<mx:Tree width="100%" height="100%" id="prjTree"
+								 borderVisible="false" labelField="name" 
+								 dataProvider="{_metadata}" itemClick="onListClick(event)" itemRollOver="onListFocus(event)" />
+					
+			</s:BorderContainer>
+			<s:HGroup>
+				<s:Button label="新建资源库项目" click="newProject(event)" />
+				<s:Button label="设置" />
+			</s:HGroup>
+		</s:Group>
+		
+		<s:Group width="100%" height="100%">
+			<s:layout>
+				<s:VerticalLayout />
+			</s:layout>
+			<s:HGroup width="100%" height="50" gap="10">
+				<s:VGroup>
+					<s:HGroup verticalAlign="middle">
+						<s:Label width="100" text="ID" />
+						<s:Label id="classId" width="80" />
+					</s:HGroup>
+				</s:VGroup>
+				<s:VGroup>
+					<s:HGroup verticalAlign="middle">
+						<s:Label width="100" text="宽度" />
+						<s:Label width="80" id="imgWidth" />
+					</s:HGroup>
+					<s:HGroup verticalAlign="middle">
+						<s:Label width="100" text="高度" />
+						<s:Label width="80" id="imgHeight" />
+					</s:HGroup>
+				</s:VGroup>
+			</s:HGroup>
+			<s:BorderContainer width="100%" height="100%" borderColor="0x5d5d5d">
+				<s:Image id="preview" left="10" top="10" />
+			</s:BorderContainer>
+		</s:Group>
+	</s:TitleWindow>
+</s:Module>
