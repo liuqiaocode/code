@@ -23,7 +23,6 @@ end
 
 function CCSceneExtend:registerScriptEvent(handler)
 	if handler then
-		print("has register")
 		self:registerScriptHandler(handler)
 	else
 		local function defaultHandler(event)
@@ -61,3 +60,5 @@ function CCSceneExtend.extend(obj)
 	setmetatable(peer,CCSceneExtend)
 	return obj
 end
+
+return CCSceneExtend
